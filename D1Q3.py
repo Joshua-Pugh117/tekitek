@@ -52,7 +52,7 @@ def lb(m):
             f2[i] = (1-w)*f2[i] + w*f2_eq
     return u
 
-def lb_moments(m):
+def lb_moments(m, w2=1.1):
     N = 100_000
     
     Dt = 1/m
@@ -62,7 +62,7 @@ def lb_moments(m):
     K = 0.001
     alpha = 0.25
     w1 = 1/((K/(alpha*Y*Y*Dt))+0.5)
-    w2 = 1.1
+    # w2 = 1.1
     # w2 = (8-4*w1)/(4-w1)
     f=0.1
 
@@ -124,31 +124,32 @@ def exact(m):
 
 
 
-def error(i):
-    print(f"Calculating error for m = {i}")
-    u = lb_moments(i)
+def error(i, w2=1.1):
+    # print(f"Calculating error for m = {i}")
+    u = lb_moments(i, w2)
     u_exact = exact(i)
-    return (i, (1/i)*np.linalg.norm(np.abs(u - u_exact)))
+    # return (w2, (1/i)*np.linalg.norm(np.abs(u - u_exact)))
+    # return (w2, np.mean(np.abs(u - u_exact)))
+    return (i, np.min(np.abs(u - u_exact)))
 
 if __name__ == '__main__':
     # with Pool() as pool:
-    #     errors = pool.map(error, range(3, 90,5))
+    #     errors = pool.map(error, range(3, 80,5))
 
     # errors = np.array(errors)
     # np.save('errors1.npy', errors)
     
-    u_moments = lb_moments(20)
-    # u = lb(30)
-    u_exact = exact(20)
-    x = np.linspace(0,1,20)
-    # print(error(30))
-    plt.figure()
-    # # plt.plot(x, u, label='LB')
-    plt.plot(x, u_exact, label='Exact')
-    plt.plot(x, u_moments, label='Moments')
-    plt.legend()
-    plt.savefig('diffusion.png')
-    plt.show()
+    # u_moments = lb_moments(20)
+    # # u = lb(30)
+    # u_exact = exact(20)
+    # x = np.linspace(0,1,20)
+    # # print(error(30))
+    # plt.figure()
+    # # # plt.plot(x, u, label='LB')
+    # plt.plot(x, u_exact, label='Exact')
+    # plt.plot(x, u_moments, label='Moments')
+    # plt.legend()
+    # plt.show()
     
     
 
@@ -157,29 +158,53 @@ if __name__ == '__main__':
     # coeff = np.polyfit(np.log(errors[:,0]), np.log(errors[:,1]), 1)
     # print(f"Polynomial coefficients: {coeff}")
     
+    # plt.savefig('erreur_diffusion.png')
 
     # plt.show()
 
     
-    # with Pool() as pool:
-    #     errors = pool.map(error, range(3, 60, 5))
+    with Pool() as pool:
+        errors = pool.map(error, range(3, 50, 5))
 
-    # errors = np.array(errors)
+    errors = np.array(errors)
     # np.save('errors2.npy', errors)
 
     # errors = np.load('other/errors.npy')
     
-    # plt.figure(figsize=(10, 5))
-    # plt.plot(np.log(errors[:, 0]), np.log(errors[:, 1]))
-    # coeff = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 1]), 1)
-    # print(f"Polynomial coefficients: {coeff}")
+    plt.figure(figsize=(10, 5))
+    plt.plot(np.log(errors[:, 0]), np.log(errors[:, 1]))
+    coeff = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 1]), 1)
+    print(f"Polynomial coefficients: {coeff}")
 
-    # plt.xlabel('log(m)')
-    # plt.ylabel('log(Error)')
-    # plt.title('Log-Log Plot of Error vs m')
+    plt.xlabel('log(m)')
+    plt.ylabel('log(Error)')
     
-    # # Set custom x-tick labels
-    # plt.xticks(ticks=np.log(errors[:, 0]), labels=errors[:, 0].astype(int))
+    # Set custom x-tick labels
+    plt.xticks(ticks=np.log(errors[:, 0]), labels=errors[:, 0].astype(int))
     
-    # plt.savefig('error_plot.png')
+    plt.savefig('erreur_diffusion.png')
+    plt.show()
+    
+    # w2_values = np.linspace(0.1, 2.0, 50)
+    # errors_list = []
+
+    # with Pool() as pool:
+    #     errors_list = pool.starmap(error, [(40, w2) for w2 in w2_values])
+        
+    # errors_list = np.array(errors_list)
+
+    # plt.figure(figsize=(10, 5))
+    # plt.plot((errors_list[:, 0]), (errors_list[:, 1]), label='Erreur vs S2')
+    # # plt.plot(np.log(errors_list[:, 0]), np.log(errors_list[:, 1]), label='Error vs m')
+    # # plt.xticks(ticks=np.log(errors_list[:, 0]), labels=np.round(errors_list[:, 0].astype(float), 2), rotation=45)
+    
+    # min_error_index = np.argmin(errors_list[:, 1])
+    # min_w2 = errors_list[min_error_index, 0]
+    # plt.axvline(x=min_w2, color='r', linestyle='--', label=f'Min erreur S2={min_w2:.2f}')
+
+    # plt.xlabel('S2')
+    # plt.ylabel('Erreur')
+    # plt.title('Erreur en fonction de S2')
+    # plt.legend()
+    # plt.savefig('diffusion_S2.png')
     # plt.show()
