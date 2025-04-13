@@ -147,6 +147,7 @@ if __name__ == '__main__':
     plt.plot(x, u_exact, label='Exact')
     plt.plot(x, u_moments, label='Moments')
     plt.legend()
+    plt.savefig('diffusion.png')
     plt.show()
     
     
@@ -155,8 +156,9 @@ if __name__ == '__main__':
     # plt.plot(np.log(errors[:,0]), np.log(errors[:,1]))
     # coeff = np.polyfit(np.log(errors[:,0]), np.log(errors[:,1]), 1)
     # print(f"Polynomial coefficients: {coeff}")
+    
 
-    plt.show()
+    # plt.show()
 
     
     # with Pool() as pool:
